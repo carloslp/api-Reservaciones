@@ -1,0 +1,487 @@
+openapi: 3.0.3
+info:
+  title: API Reservaciones
+  version: 1.0.0
+  description: API RESTful para gestión de reservaciones de recursos.
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/reservations:
+    post:
+      summary: Crear una nueva reservación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationInput'
+      responses:
+        '201':
+          description: Reservación creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '409':
+          description: Conflicto de solapamiento
+    get:
+      summary: Obtener todas las reservaciones
+      parameters:
+        - in: query
+          name: userId
+          schema: { type: string }
+        - in: query
+          name: resourceId
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+        - in: query
+          name: startDate
+          schema: { type: string, format: date-time }
+        - in: query
+          name: endDate
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Lista de reservaciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+  /api/reservations/{id}:
+    get:
+      summary: Obtener una reservación por ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Reservación encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '404':
+          description: Reservación no encontrada
+    put:
+      summary: Actualizar una reservación
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationUpdate'
+      responses:
+        '200':
+          description: Reservación actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '409':
+          description: Conflicto de solapamiento
+    delete:
+      summary: Eliminar una reservación
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Reservación eliminada
+  /api/reservations/nearest:
+    get:
+      summary: Obtener reservaciones cercanas a una ubicación
+      parameters:
+        - in: query
+          name: latitude
+          required: true
+          schema: { type: number }
+        - in: query
+          name: longitude
+          required: true
+          schema: { type: number }
+        - in: query
+          name: maxDistance
+          schema: { type: number }
+        - in: query
+          name: unit
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: startTime
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Reservaciones cercanas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+  /api/resources:
+    post:
+      summary: Crear un recurso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceInput'
+      responses:
+        '201':
+          description: Recurso creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+    get:
+      summary: Obtener todos los recursos
+      parameters:
+        - in: query
+          name: type
+          schema: { type: string }
+        - in: query
+          name: capacity
+          schema: { type: integer }
+        - in: query
+          name: text
+          schema: { type: string }
+        - in: query
+          name: latitude
+          schema: { type: number }
+        - in: query
+          name: longitude
+          schema: { type: number }
+        - in: query
+          name: maxDistance
+          schema: { type: number }
+        - in: query
+          name: unit
+          schema: { type: string }
+        - in: query
+          name: startDate
+          schema: { type: string, format: date-time }
+        - in: query
+          name: endDate
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Lista de recursos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resource'
+  /api/resources/{id}:
+    get:
+      summary: Obtener un recurso por ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Recurso encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '404':
+          description: Recurso no encontrado
+    put:
+      summary: Actualizar un recurso
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceUpdate'
+      responses:
+        '200':
+          description: Recurso actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+    delete:
+      summary: Eliminar un recurso
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Recurso eliminado
+  /api/users/register-whatsapp:
+    post:
+      summary: Registrar/verificar usuario por WhatsApp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phoneNumber:
+                  type: string
+      responses:
+        '200':
+          description: OTP enviado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /api/users/verify-whatsapp:
+    post:
+      summary: Verificar OTP de WhatsApp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phoneNumber:
+                  type: string
+                otpCode:
+                  type: string
+      responses:
+        '200':
+          description: Usuario verificado y JWT emitido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+  /api/users/{id}:
+    get:
+      summary: Obtener usuario por ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Usuario no encontrado
+    put:
+      summary: Actualizar usuario
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      summary: Eliminar usuario
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Usuario eliminado
+components:
+  schemas:
+    Location:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [Point]
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        resourceId:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [confirmada, pendiente, cancelada, completada]
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        location:
+          $ref: '#/components/schemas/Location'
+    ReservationInput:
+      type: object
+      required:
+        - userId
+        - resourceId
+        - startTime
+        - endTime
+      properties:
+        userId:
+          type: string
+        resourceId:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        location:
+          $ref: '#/components/schemas/Location'
+        notes:
+          type: string
+    ReservationUpdate:
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [confirmada, pendiente, cancelada, completada]
+        notes:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        whatsappId:
+          type: string
+        role:
+          type: string
+          enum: [cliente, administrador]
+        isWhatsappVerified:
+          type: boolean
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+    Resource:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        capacity:
+          type: integer
+        location:
+          $ref: '#/components/schemas/Location'
+        description:
+          type: string
+        isActive:
+          type: boolean
+    ResourceInput:
+      type: object
+      required:
+        - name
+        - type
+        - capacity
+        - location
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        capacity:
+          type: integer
+        location:
+          $ref: '#/components/schemas/Location'
+        description:
+          type: string
+        isActive:
+          type: boolean
+    ResourceUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        capacity:
+          type: integer
+        location:
+          $ref: '#/components/schemas/Location'
+        description:
+          type: string
+        isActive:
+          type: boolean
