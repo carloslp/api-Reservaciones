@@ -25,7 +25,13 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message || 'Error interno' });
 });
 
+
 const PORT = process.env.PORT || 3000;
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+const mongoUri = process.env.MONGODB_URI;
+if (!mongoUri || typeof mongoUri !== 'string' || mongoUri.trim().length === 0) {
+  console.error('ERROR: La variable de entorno MONGODB_URI no está definida o es inválida.');
+  process.exit(1);
+}
+mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => app.listen(PORT, () => console.log(`API escuchando en puerto ${PORT}`)))
   .catch(err => console.error('Error de conexión a MongoDB:', err));
