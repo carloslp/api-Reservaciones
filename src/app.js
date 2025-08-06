@@ -1,4 +1,10 @@
-require('dotenv').config();
+// Solo cargar .env si no estamos en producción (Docker)
+if (!process.env.MONGODB_URI || !process.env.JWT_SECRET) {
+  require('dotenv').config();
+  console.log('Variables cargadas desde .env:', process.env);
+} else {
+  console.log('Variables cargadas desde entorno Docker:', process.env);
+}
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
